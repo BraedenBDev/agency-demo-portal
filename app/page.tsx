@@ -1,120 +1,50 @@
-import { demoUrl, visibleDemos } from '@/lib/demos';
+import { visibleDemos } from '@/lib/demos';
+import { PageFrame } from '@/components/site/page-frame';
+import { DemoIndexRow } from '@/components/demos/demo-index-row';
+import { SectionDivider } from '@/components/site/section-divider';
 
 export const dynamic = 'force-dynamic';
 
 export default function HomePage() {
   const demos = visibleDemos();
   return (
-    <main style={mainStyle}>
-      <header style={headerStyle}>
-        <p style={eyebrowStyle}>Almost Impossible Agency</p>
-        <h1 style={h1Style}>Demos</h1>
-        <p style={leadStyle}>
-          Live experiments, client-facing previews, and microsites hosted on agency
-          infrastructure.
+    <PageFrame section="Demos">
+      <header className="flex flex-col gap-3">
+        <h1 className="font-editorial italic text-[clamp(56px,12vw,140px)] leading-[0.92] tracking-[-0.03em] text-white-pure">
+          Demos.
+        </h1>
+        <p className="text-base text-white-70 max-w-prose">
+          Live experiments, client-facing previews, and microsites hosted on agency infrastructure.
         </p>
       </header>
 
-      <section style={gridStyle}>
-        {demos.map((demo) => (
-          <a key={demo.slug} href={demoUrl(demo.slug)} style={cardStyle}>
-            {demo.screenshotPath && (
-              <img
-                src={`/${demo.screenshotPath}`}
-                alt={`${demo.title} screenshot`}
-                style={cardImgStyle}
+      <SectionDivider />
+
+      <section className="flex flex-col">
+        {demos.length === 0 ? (
+          <p className="text-sm text-white-40 italic py-8">No demos visible yet.</p>
+        ) : (
+          demos.map((demo, i) => (
+            <div key={demo.slug}>
+              <DemoIndexRow
+                slug={demo.slug}
+                title={demo.title}
+                description={demo.description}
+                index={i + 1}
               />
-            )}
-            <div style={cardSlugStyle}>{demo.slug}{demo.passwordGated ? ' · 🔒' : ''}</div>
-            <h2 style={cardTitleStyle}>{demo.title}</h2>
-            <p style={cardDescStyle}>{demo.description}</p>
-            <span style={cardLinkStyle}>
-              {demo.slug}.demo.almostimpossible.agency →
-            </span>
-          </a>
-        ))}
+              {i < demos.length - 1 && <SectionDivider />}
+            </div>
+          ))
+        )}
       </section>
 
-      <footer style={footerStyle}>
-        <span>{demos.length} demo{demos.length === 1 ? '' : 's'}</span>
-        <span style={{ opacity: 0.5 }}>•</span>
-        <span style={{ opacity: 0.5 }}>v0</span>
+      <footer className="mt-8 flex gap-2 text-[10px] uppercase tracking-[0.15em] text-white-40">
+        <span>
+          {demos.length} demo{demos.length === 1 ? '' : 's'}
+        </span>
+        <span className="text-white-15">·</span>
+        <span>v1</span>
       </footer>
-    </main>
+    </PageFrame>
   );
 }
-
-const mainStyle: React.CSSProperties = {
-  maxWidth: 960,
-  margin: '0 auto',
-  padding: '6rem 2rem 4rem',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '3rem',
-};
-
-const headerStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.5rem' };
-const eyebrowStyle: React.CSSProperties = {
-  margin: 0,
-  fontSize: '0.85rem',
-  letterSpacing: '0.1em',
-  textTransform: 'uppercase',
-  opacity: 0.55,
-};
-const h1Style: React.CSSProperties = {
-  margin: 0,
-  fontSize: '3rem',
-  letterSpacing: '-0.025em',
-  fontWeight: 600,
-};
-const leadStyle: React.CSSProperties = { margin: 0, opacity: 0.7, fontSize: '1.05rem', maxWidth: 540 };
-
-const gridStyle: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-  gap: '1rem',
-};
-
-const cardStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '0.6rem',
-  padding: '1.5rem',
-  borderRadius: 12,
-  background: '#1a1a2e',
-  border: '1px solid #2a2a3e',
-  color: 'inherit',
-  textDecoration: 'none',
-  transition: 'border-color 0.15s ease',
-  overflow: 'hidden',
-};
-
-const cardImgStyle: React.CSSProperties = {
-  width: 'calc(100% + 3rem)',
-  margin: '-1.5rem -1.5rem 0.3rem',
-  aspectRatio: '16 / 9',
-  objectFit: 'cover',
-  display: 'block',
-};
-const cardSlugStyle: React.CSSProperties = {
-  fontSize: '0.75rem',
-  letterSpacing: '0.05em',
-  opacity: 0.5,
-  fontFamily: 'ui-monospace, "SF Mono", monospace',
-};
-const cardTitleStyle: React.CSSProperties = { margin: 0, fontSize: '1.25rem', fontWeight: 600 };
-const cardDescStyle: React.CSSProperties = { margin: 0, opacity: 0.7, fontSize: '0.95rem', lineHeight: 1.5 };
-const cardLinkStyle: React.CSSProperties = {
-  marginTop: '0.5rem',
-  fontSize: '0.85rem',
-  opacity: 0.6,
-  fontFamily: 'ui-monospace, "SF Mono", monospace',
-};
-
-const footerStyle: React.CSSProperties = {
-  marginTop: 'auto',
-  display: 'flex',
-  gap: '0.6rem',
-  fontSize: '0.8rem',
-  opacity: 0.55,
-};
