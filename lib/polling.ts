@@ -1,5 +1,6 @@
 import { findDemoApps } from './coolify';
 import { reconcileCoolifyApps } from './db';
+import { writeTraefikConfig } from './traefik';
 
 const INTERVAL_MS = Number(process.env.PORTAL_POLL_INTERVAL_MS ?? 60_000);
 
@@ -43,6 +44,9 @@ export async function runOnce(): Promise<{
     console.log(
       `[portal-poller] reconcile inserted=${result.inserted.length} relinked=${result.relinked.length} archived=${result.archived.length}`,
     );
+    await writeTraefikConfig().catch((err) => {
+      console.warn('[portal-poller] writeTraefikConfig failed:', err);
+    });
   }
   return result;
 }

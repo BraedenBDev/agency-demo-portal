@@ -10,6 +10,7 @@ import {
 } from '@/lib/db';
 import { runOnce } from '@/lib/polling';
 import { saveScreenshot } from '@/lib/screenshots';
+import { writeTraefikConfig } from '@/lib/traefik';
 
 function refresh(slug: string) {
   revalidatePath('/');
@@ -43,6 +44,9 @@ export async function setPasswordAction(slug: string, formData: FormData): Promi
     const hash = await bcrypt.hash(password, 10);
     setDemoPassword(slug, hash);
   }
+  await writeTraefikConfig().catch((err) => {
+    console.warn('[admin] writeTraefikConfig failed:', err);
+  });
   refresh(slug);
 }
 
