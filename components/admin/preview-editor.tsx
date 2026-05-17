@@ -82,10 +82,12 @@ export function PreviewEditor({
 
           <label className="flex items-center gap-3 text-sm">
             <Checkbox
-              name="visible"
               checked={visible}
               onCheckedChange={(v) => setVisible(v === true)}
             />
+            {/* Radix Checkbox is a button, not a native input — FormData won't see it.
+                Mirror state into a hidden input so updateMetaAction reads it correctly. */}
+            <input type="hidden" name="visible" value={visible ? 'on' : 'off'} />
             <span>Visible on public landing</span>
           </label>
 
