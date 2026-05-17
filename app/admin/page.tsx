@@ -1,8 +1,13 @@
 import { listAllDemos } from '@/lib/db';
 import { PageFrame } from '@/components/site/page-frame';
 import { DemoAdminCard } from '@/components/demos/demo-admin-card';
+import { ExternalDemoForm } from '@/components/admin/external-demo-form';
 import { Button } from '@/components/ui/button';
-import { refreshFromCoolifyAction, togglePublishAction } from './actions';
+import {
+  createExternalDemoAction,
+  refreshFromCoolifyAction,
+  togglePublishAction,
+} from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +31,8 @@ export default function AdminPage() {
           </Button>
         </form>
       </header>
+
+      <ExternalDemoForm createAction={createExternalDemoAction} />
 
       <section className="flex flex-col gap-4">
         {demos.length === 0 ? (
