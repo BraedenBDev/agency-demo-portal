@@ -1,0 +1,13 @@
+/*
+ * Klavika metric-matched fallback.
+ * Mirrors impossible-project/src/styles/klavika-fallback.css.
+ * Closes residual CLS gap at hero scale.
+ */
+@font-face {
+  font-family: 'Klavika Fallback';
+  src: local('Arial');
+  size-adjust: 93.03%;
+  ascent-override: 91.17%;
+  descent-override: 24.67%;
+  line-gap-override: 0.00%;
+}
