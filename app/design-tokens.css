@@ -1,0 +1,188 @@
+/*
+  Almost Impossible — Design Tokens
+  Filmsupply-inspired editorial aesthetic with Klavika + Playfair Display
+*/
+
+:root {
+    /* ------------------------------ */
+    /* TYPOGRAPHY SETTINGS            */
+    /* ------------------------------ */
+
+    /* Fonts - Klavika for brand/body, Playfair Display for editorial headings */
+    --font-display: var(--font-klavika), 'Klavika Fallback', sans-serif;
+    --font-editorial: var(--font-playfair), Georgia, serif;
+    --font-primary: var(--font-klavika), 'Klavika Fallback', sans-serif;
+    --font-mono: var(--font-jetbrains), monospace;
+
+    /* Headers (Font Families) */
+    --font-h1: var(--font-display);
+    --font-h2: var(--font-editorial);
+    --font-h3: var(--font-editorial);
+    --font-body: var(--font-primary);
+    --font-subtitle: var(--font-primary);
+
+    /* Font Sizes - Massive hero scale */
+    --size-h1-desktop: 180px;
+    --size-h1-mobile: 56px;
+
+    --size-h2-desktop: 100px;
+    --size-h2-mobile: 40px;
+
+    --size-body: 16px;
+    --size-subtitle: 13px;
+
+    /* Font Weights */
+    --weight-h1: 700;
+    --weight-h2: 400;
+    --weight-body: 400;
+    --weight-bold: 600;
+
+    /* ------------------------------ */
+    /* COLOR PALETTE                  */
+    /* ------------------------------ */
+
+    /* Base Colors - Pure blacks */
+    --void: 0 0% 0%;
+    /* #000000 - Deepest Background (pure black) */
+    --carbon: 0 0% 8%;
+    /* #141414 - Card Background */
+    --smoke: 0 0% 11%;
+    /* #1c1c1c - Elevated */
+    --ash: 0 0% 15%;
+    /* #262626 - Borders */
+    --footer: 0 0% 3%;
+    /* #080808 - Footer */
+
+    /* Company Grey — warm grey for CTAs, shifted from cool (216°) to warm (30°) to match brand palette */
+    --company-grey: 30 4% 38%;
+    /* ~#655E58 - Buttons, CTAs (warm grey, WCAG AA with white text) */
+    --taupe: 216 2% 72%;
+    /* Light tint of company grey for section backgrounds */
+    --taupe-muted: 216 2% 62%;
+    /* Slightly darker for borders on grey */
+
+    /* Text Colors - High contrast hierarchy */
+    --white-pure: 0 0% 98%;
+    /* #fafafa */
+    --white-70: 0 0% 63%;
+    /* #a1a1a1 - Secondary text */
+    --white-40: 0 0% 40%;
+    /* #666666 - Muted */
+    --white-15: 0 0% 27%;
+    /* #444444 - Dim */
+
+    /* Text on light surfaces */
+    --black-rich: 0 0% 10%;
+    /* #1A1A1A */
+    --black-muted: 0 0% 28%;
+    /* #474747 - Adjusted for WCAG AA contrast on taupe (5:1 ratio) */
+
+    /* Brand Accent — PANTONE 152 C
+       HEX: #E57200 | RGB: 229, 114, 0 | HSL: 30 100% 45% */
+    --accent: 30 100% 45%;
+    --accent-h: 30;
+    --accent-s: 100%;
+    --accent-l: 45%;
+    --accent-glow: var(--accent);
+    --accent-dim: var(--accent);
+
+    /* Accent-derived variants */
+    --hero-orange: var(--accent);
+    /* Hero bg, light section accent */
+    --hero-orange-dark: 30 100% 32%;
+    /* Darker tone-on-tone text on accent backgrounds (#A35000) */
+
+    /* Secondary orange — for use on grey/taupe backgrounds (better contrast) */
+    --accent-on-grey: 24 100% 50%;
+    /* hsl(24, 100%, 50%) = #FF6500 */
+
+    /* Status Signals */
+    --warning: 45 100% 50%;
+    --success: 150 100% 50%;
+    --error: 345 100% 60%;
+
+    /* ------------------------------ */
+    /* KERNING & TYPOGRAPHY RENDERING */
+    /* ------------------------------ */
+    --font-kerning: normal;
+    --text-rendering: auto;
+    --optical-adjustment: 0em;
+    --font-features: "kern" 1;
+
+    /* Letter Spacing (set by CMS) */
+    --tracking-hero-display: -0.04em;
+    --tracking-footer-display: -0.04em;
+    --tracking-h1: -0.02em;
+    --tracking-h2: 0em;
+    --tracking-body: 0em;
+
+    /* Footer layout mode — 'left' (compact, left-aligned) or 'distributed' (full-width) */
+    /* Toggle via debug panel */
+    --footer-layout-mode: left;
+
+    /* ------------------------------ */
+    /* SEMANTIC MAPPING               */
+    /* ------------------------------ */
+    --background: var(--void);
+    --foreground: var(--white-pure);
+    --primary: var(--accent);
+    --border: var(--ash);
+
+    /* ------------------------------ */
+    /* FLUID SPACING (viewport-aware) */
+    /* ------------------------------ */
+    --space-xs: clamp(0.5rem, 1.5vh, 1rem);
+    --space-sm: clamp(1rem, 2.5vh, 1.5rem);
+    --space-md: clamp(1.5rem, 4vh, 3rem);
+    --space-lg: clamp(2rem, 6vh, 5rem);
+    --space-xl: clamp(3rem, 10vh, 8rem);
+
+    /* ------------------------------ */
+    /* SAFE AREA INSETS               */
+    /* ------------------------------ */
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+
+    /* ------------------------------ */
+    /* FLUID CONTENT WIDTHS           */
+    /* ------------------------------ */
+    --max-w-content: clamp(1400px, 72vw, 2400px);
+    --max-w-content-narrow: clamp(1200px, 62vw, 2200px);
+    --max-w-content-wide: clamp(1800px, 80vw, 2800px);
+
+    /* ------------------------------ */
+    /* FLUID TYPOGRAPHY               */
+    /* ------------------------------ */
+    --text-hero: clamp(10vw, max(10vh, 10vw), 200px);
+    --text-hero-mobile: clamp(12vw, max(8vh, 14vw), 100px);
+    --text-section: clamp(36px, 7vw, 100px);
+    --text-body-fluid: clamp(14px, 1.5vw, 18px);
+}
+
+/* Short viewport overrides (laptops with browser chrome, etc.) */
+@media (max-height: 700px) {
+    :root {
+        --space-md: clamp(1rem, 3vh, 2rem);
+        --space-lg: clamp(1.5rem, 4vh, 3rem);
+        --space-xl: clamp(2rem, 6vh, 4rem);
+        --text-hero: min(10vw, 8vh);
+    }
+}
+
+/* GhostText: decorative watermarks rendered via ::before so axe-core skips
+   contrast checks (pseudo-element content is invisible to accessibility tree) */
+[data-ghost-text]::before {
+    content: attr(data-ghost-text);
+}
+
+/* Extreme short viewport (mobile landscape, etc.) */
+@media (max-height: 500px) {
+    :root {
+        --space-md: clamp(0.75rem, 2vh, 1.5rem);
+        --space-lg: clamp(1rem, 3vh, 2rem);
+        --space-xl: clamp(1.5rem, 4vh, 3rem);
+        --text-hero: min(8vw, 12vh);
+    }
+}

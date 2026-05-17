@@ -1,0 +1,21 @@
+@import './design-tokens.css';
+@import './fonts.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    background: hsl(var(--void));
+    color: hsl(var(--white-pure));
+    font-family: var(--font-klavika), 'Klavika Fallback', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  ::selection {
+    background: hsl(var(--accent) / 0.85);
+    color: hsl(var(--void));
+  }
+}
