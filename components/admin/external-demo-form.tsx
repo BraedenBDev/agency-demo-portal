@@ -39,8 +39,8 @@ export function ExternalDemoForm({ createAction }: ExternalDemoFormProps) {
   return (
     <form
       action={(formData) => {
-        startTransition(() => {
-          void onSubmit(formData);
+        startTransition(async () => {
+          await onSubmit(formData);
         });
       }}
       className="border border-ash p-6 flex flex-col gap-4 bg-carbon/40"
