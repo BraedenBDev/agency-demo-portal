@@ -18,7 +18,14 @@ export default function HomePage() {
       <section style={gridStyle}>
         {demos.map((demo) => (
           <a key={demo.slug} href={demoUrl(demo.slug)} style={cardStyle}>
-            <div style={cardSlugStyle}>{demo.slug}</div>
+            {demo.screenshotPath && (
+              <img
+                src={`/${demo.screenshotPath}`}
+                alt={`${demo.title} screenshot`}
+                style={cardImgStyle}
+              />
+            )}
+            <div style={cardSlugStyle}>{demo.slug}{demo.passwordGated ? ' · 🔒' : ''}</div>
             <h2 style={cardTitleStyle}>{demo.title}</h2>
             <p style={cardDescStyle}>{demo.description}</p>
             <span style={cardLinkStyle}>
@@ -79,6 +86,15 @@ const cardStyle: React.CSSProperties = {
   color: 'inherit',
   textDecoration: 'none',
   transition: 'border-color 0.15s ease',
+  overflow: 'hidden',
+};
+
+const cardImgStyle: React.CSSProperties = {
+  width: 'calc(100% + 3rem)',
+  margin: '-1.5rem -1.5rem 0.3rem',
+  aspectRatio: '16 / 9',
+  objectFit: 'cover',
+  display: 'block',
 };
 const cardSlugStyle: React.CSSProperties = {
   fontSize: '0.75rem',

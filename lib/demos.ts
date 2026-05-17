@@ -1,21 +1,21 @@
+import { listVisibleDemos } from './db';
+
 export type Demo = {
   slug: string;
   title: string;
   description: string;
   passwordGated?: boolean;
+  screenshotPath: string | null;
 };
 
-// v0: hardcoded source of truth. v1 replaces this with SQLite + Coolify API polling.
-export const demos: Demo[] = [
-  {
-    slug: 'hello-world',
-    title: 'Hello, World',
-    description: 'Pilot deploy validating the demo.almostimpossible.agency hosting path.',
-  },
-];
-
 export function visibleDemos(): Demo[] {
-  return demos;
+  return listVisibleDemos().map((row) => ({
+    slug: row.slug,
+    title: row.title,
+    description: row.description,
+    passwordGated: row.password_gated === 1,
+    screenshotPath: row.screenshot_path,
+  }));
 }
 
 export function demoUrl(slug: string): string {
