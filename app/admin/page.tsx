@@ -1,8 +1,13 @@
 import { listAllDemos } from '@/lib/db';
 import { PageFrame } from '@/components/site/page-frame';
 import { DemoAdminCard } from '@/components/demos/demo-admin-card';
+import { ExternalDemoForm } from '@/components/admin/external-demo-form';
 import { Button } from '@/components/ui/button';
-import { refreshFromCoolifyAction, togglePublishAction } from './actions';
+import {
+  createExternalDemoAction,
+  refreshFromCoolifyAction,
+  togglePublishAction,
+} from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,6 +32,8 @@ export default function AdminPage() {
         </form>
       </header>
 
+      <ExternalDemoForm createAction={createExternalDemoAction} />
+
       <section className="flex flex-col gap-4">
         {demos.length === 0 ? (
           <p className="text-sm text-white-40 italic py-8">No demos tracked yet.</p>
@@ -41,6 +48,7 @@ export default function AdminPage() {
               archived={demo.archived === 1}
               passwordGated={demo.password_gated === 1}
               coolifyAppId={demo.coolify_app_id}
+              externalUrl={demo.external_url}
               togglePublishAction={togglePublishAction.bind(null, demo.slug)}
             />
           ))

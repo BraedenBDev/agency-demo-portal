@@ -1,20 +1,15 @@
+import { demoUrl, isExternal, type Demo } from '@/lib/demos';
 import { DemoPreviewCard } from './demo-preview-card';
 
-export type DemoIndexRowProps = {
-  slug: string;
-  title: string;
-  description: string;
-  index: number;
-};
-
-export function DemoIndexRow({ slug, title, description, index }: DemoIndexRowProps) {
+export function DemoIndexRow({ demo, index }: { demo: Demo; index: number }) {
   return (
     <DemoPreviewCard
-      slug={slug}
-      title={title}
-      description={description}
+      slug={demo.slug}
+      title={demo.title}
+      description={demo.description}
       index={index}
-      href={`https://${slug}.demo.almostimpossible.agency`}
+      href={demoUrl(demo)}
+      external={isExternal(demo)}
     />
   );
 }

@@ -26,12 +26,7 @@ export default function HomePage() {
         ) : (
           demos.map((demo, i) => (
             <div key={demo.slug}>
-              <DemoIndexRow
-                slug={demo.slug}
-                title={demo.title}
-                description={demo.description}
-                index={i + 1}
-              />
+              <DemoIndexRow demo={demo} index={i + 1} />
               {i < demos.length - 1 && <SectionDivider />}
             </div>
           ))

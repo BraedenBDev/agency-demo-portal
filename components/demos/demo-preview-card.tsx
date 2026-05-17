@@ -1,3 +1,4 @@
+import { ArrowUpRight } from 'lucide-react';
 import { OpticalArrow } from '@/components/ui/optical-arrow';
 
 export type DemoPreviewCardProps = {
@@ -9,6 +10,8 @@ export type DemoPreviewCardProps = {
   /** Where clicking the row goes; omit to render non-clickable preview-only */
   href?: string;
   archived?: boolean;
+  /** True for AWS-hosted / non-Coolify rows. Adds "· external" marker and swaps to ↗ */
+  external?: boolean;
 };
 
 export function DemoPreviewCard({
@@ -18,6 +21,7 @@ export function DemoPreviewCard({
   index,
   href,
   archived,
+  external,
 }: DemoPreviewCardProps) {
   const indexLabel = index !== undefined ? String(index).padStart(3, '0') : null;
   const content = (
@@ -26,6 +30,7 @@ export function DemoPreviewCard({
         <div className="font-mono text-[10px] tracking-[0.08em] text-white-40">
           {indexLabel ? `${indexLabel} · ` : ''}
           {slug}
+          {external ? ' · external' : ''}
           {archived ? ' · archived' : ''}
         </div>
         <h2 className="font-editorial italic text-3xl sm:text-4xl leading-[0.95] tracking-[-0.02em] text-white-pure">
@@ -36,7 +41,11 @@ export function DemoPreviewCard({
         ) : null}
       </div>
       {href ? (
-        <OpticalArrow className="w-5 h-5 text-accent shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
+        external ? (
+          <ArrowUpRight className="w-5 h-5 text-accent shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
+        ) : (
+          <OpticalArrow className="w-5 h-5 text-accent shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
+        )
       ) : null}
     </div>
   );
@@ -45,6 +54,8 @@ export function DemoPreviewCard({
     return (
       <a
         href={href}
+        target="_blank"
+        rel="noopener noreferrer"
         className="block hover:bg-carbon/50 -mx-3 px-3 transition-colors duration-200"
       >
         {content}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,10 +17,13 @@ export type PreviewEditorProps = {
     screenshotPath: string | null;
     archived: boolean;
     passwordGated: boolean;
+    external: boolean;
+    externalUrl: string | null;
   };
   updateMetaAction: (formData: FormData) => Promise<void>;
   uploadScreenshotAction: (formData: FormData) => Promise<void>;
   setPasswordAction: (formData: FormData) => Promise<void>;
+  updateExternalUrlAction: (formData: FormData) => Promise<{ error?: string }>;
 };
 
 export function PreviewEditor({
@@ -29,11 +32,15 @@ export function PreviewEditor({
   updateMetaAction,
   uploadScreenshotAction,
   setPasswordAction,
+  updateExternalUrlAction,
 }: PreviewEditorProps) {
   const [title, setTitle] = useState(initial.title);
   const [description, setDescription] = useState(initial.description);
   const [visible, setVisible] = useState(initial.visible);
   const [pendingScreenshotUrl, setPendingScreenshotUrl] = useState<string | null>(null);
+  const [externalUrl, setExternalUrl] = useState(initial.externalUrl ?? '');
+  const [externalUrlError, setExternalUrlError] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
 
   useEffect(() => {
     return () => {
@@ -48,7 +55,8 @@ export function PreviewEditor({
     setPendingScreenshotUrl(URL.createObjectURL(file));
   }
 
-  const screenshotSrc = pendingScreenshotUrl ?? (initial.screenshotPath ? `/${initial.screenshotPath}` : null);
+  const screenshotSrc =
+    pendingScreenshotUrl ?? (initial.screenshotPath ? `/${initial.screenshotPath}` : null);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12">
@@ -85,8 +93,6 @@ export function PreviewEditor({
               checked={visible}
               onCheckedChange={(v) => setVisible(v === true)}
             />
-            {/* Radix Checkbox is a button, not a native input — FormData won't see it.
-                Mirror state into a hidden input so updateMetaAction reads it correctly. */}
             <input type="hidden" name="visible" value={visible ? 'on' : 'off'} />
             <span>Visible on public landing</span>
           </label>
@@ -95,6 +101,36 @@ export function PreviewEditor({
             Save metadata
           </Button>
         </form>
+
+        {initial.external && (
+          <form
+            action={(formData) => {
+              setExternalUrlError(null);
+              startTransition(async () => {
+                const result = await updateExternalUrlAction(formData);
+                if (result.error) setExternalUrlError(result.error);
+              });
+            }}
+            className="flex flex-col gap-3 border-t border-ash pt-6"
+          >
+            <div className="text-[10px] uppercase tracking-[0.15em] text-white-40">External URL</div>
+            <Input
+              type="url"
+              name="external_url"
+              value={externalUrl}
+              onChange={(e) => setExternalUrl(e.target.value)}
+              placeholder="https://www.projects.almostimpossible.agency/…"
+            />
+            {externalUrlError && (
+              <p className="text-xs text-error border border-error/30 bg-error/10 px-3 py-2">
+                {externalUrlError}
+              </p>
+            )}
+            <Button type="submit" variant="outline" className="self-start">
+              Update URL
+            </Button>
+          </form>
+        )}
 
         <form action={uploadScreenshotAction} className="flex flex-col gap-3 border-t border-ash pt-6">
           <div className="text-[10px] uppercase tracking-[0.15em] text-white-40">Screenshot</div>
@@ -117,22 +153,24 @@ export function PreviewEditor({
           </Button>
         </form>
 
-        <form action={setPasswordAction} className="flex flex-col gap-3 border-t border-ash pt-6">
-          <div className="text-[10px] uppercase tracking-[0.15em] text-white-40">Password gate</div>
-          <p className="text-xs text-white-70">
-            {initial.passwordGated
-              ? '🔒 Currently gated. New password rotates; empty clears.'
-              : 'Currently open. Set a password to enable basic-auth.'}
-          </p>
-          <Input
-            type="password"
-            name="password"
-            placeholder={initial.passwordGated ? 'Rotate, or leave blank to clear' : 'New password'}
-          />
-          <Button type="submit" variant="outline" className="self-start">
-            {initial.passwordGated ? 'Update password' : 'Set password'}
-          </Button>
-        </form>
+        {!initial.external && (
+          <form action={setPasswordAction} className="flex flex-col gap-3 border-t border-ash pt-6">
+            <div className="text-[10px] uppercase tracking-[0.15em] text-white-40">Password gate</div>
+            <p className="text-xs text-white-70">
+              {initial.passwordGated
+                ? '🔒 Currently gated. New password rotates; empty clears.'
+                : 'Currently open. Set a password to enable basic-auth.'}
+            </p>
+            <Input
+              type="password"
+              name="password"
+              placeholder={initial.passwordGated ? 'Rotate, or leave blank to clear' : 'New password'}
+            />
+            <Button type="submit" variant="outline" className="self-start">
+              {initial.passwordGated ? 'Update password' : 'Set password'}
+            </Button>
+          </form>
+        )}
       </div>
 
       {/* Preview column */}
@@ -144,6 +182,7 @@ export function PreviewEditor({
             title={title}
             description={description}
             archived={initial.archived}
+            external={initial.external}
           />
         </div>
         <p className="text-[10px] text-white-40">

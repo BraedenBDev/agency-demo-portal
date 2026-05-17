@@ -6,6 +6,7 @@ export type Demo = {
   description: string;
   passwordGated?: boolean;
   screenshotPath: string | null;
+  externalUrl: string | null;
 };
 
 export function visibleDemos(): Demo[] {
@@ -15,9 +16,14 @@ export function visibleDemos(): Demo[] {
     description: row.description,
     passwordGated: row.password_gated === 1,
     screenshotPath: row.screenshot_path,
+    externalUrl: row.external_url,
   }));
 }
 
-export function demoUrl(slug: string): string {
-  return `https://${slug}.demo.almostimpossible.agency`;
+export function demoUrl(demo: Pick<Demo, 'slug' | 'externalUrl'>): string {
+  return demo.externalUrl ?? `https://${demo.slug}.demo.almostimpossible.agency`;
+}
+
+export function isExternal(demo: Pick<Demo, 'externalUrl'>): boolean {
+  return demo.externalUrl !== null;
 }

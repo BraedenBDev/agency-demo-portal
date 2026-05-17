@@ -13,6 +13,7 @@ export type DemoRow = {
   basic_auth_user: string;
   archived: 0 | 1;
   coolify_app_id: string | null;
+  external_url: string | null;
   first_seen_at: string;
   updated_at: string;
 };
@@ -42,6 +43,19 @@ const CREATE_VISIBLE_INDEX = `
   CREATE INDEX IF NOT EXISTS idx_demos_visible ON demos(visible) WHERE visible = 1
 `;
 
+// Adds the external_url column if missing. SQLite throws "duplicate column name"
+// when re-running; we swallow only that error so re-init is a no-op.
+function migrateExternalUrl(instance: Database.Database): void {
+  try {
+    instance.prepare('ALTER TABLE demos ADD COLUMN external_url TEXT').run();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (!/duplicate column name: external_url/i.test(msg)) {
+      throw err;
+    }
+  }
+}
+
 export function db(): Database.Database {
   if (_db) return _db;
 
@@ -53,8 +67,10 @@ export function db(): Database.Database {
 
   instance.prepare(CREATE_DEMOS_TABLE).run();
   instance.prepare(CREATE_VISIBLE_INDEX).run();
+  migrateExternalUrl(instance);
 
   seedHelloWorld(instance);
+  seedExternalDemos(instance);
 
   _db = instance;
   return instance;
@@ -75,6 +91,20 @@ function seedHelloWorld(instance: Database.Database): void {
     now,
     now,
   );
+}
+
+// Idempotent seed of the two AWS-hosted demos. INSERT OR IGNORE on slug PK —
+// re-running has no effect if rows already exist. Both start visible=0;
+// operator publishes via /admin after setting title/description.
+function seedExternalDemos(instance: Database.Database): void {
+  const now = new Date().toISOString();
+  const stmt = instance.prepare(`
+    INSERT OR IGNORE INTO demos
+      (slug, external_url, visible, archived, first_seen_at, updated_at)
+    VALUES (?, ?, 0, 0, ?, ?)
+  `);
+  stmt.run('mashreq-kiosk', 'https://www.projects.almostimpossible.agency/MashreqKiosk/P2/Kiosk/', now, now);
+  stmt.run('eh3', 'https://www.projects.almostimpossible.agency/EH3/', now, now);
 }
 
 export function listVisibleDemos(): DemoRow[] {
@@ -183,4 +213,36 @@ export function setDemoScreenshot(slug: string, screenshotPath: string): void {
   db().prepare(`
     UPDATE demos SET screenshot_path = ?, updated_at = ? WHERE slug = ?
   `).run(screenshotPath, now, slug);
+}
+
+// Create a non-Coolify (externally-hosted) demo row. Throws on slug collision
+// (SQLite UNIQUE constraint) — caller surfaces a user-friendly error.
+export function createExternalDemo(input: {
+  slug: string;
+  externalUrl: string;
+  title?: string;
+  description?: string;
+}): void {
+  const now = new Date().toISOString();
+  db().prepare(`
+    INSERT INTO demos
+      (slug, title, description, external_url, visible, archived, first_seen_at, updated_at)
+    VALUES (?, ?, ?, ?, 0, 0, ?, ?)
+  `).run(
+    input.slug,
+    input.title ?? '',
+    input.description ?? '',
+    input.externalUrl,
+    now,
+    now,
+  );
+}
+
+// Update the external URL on an existing row. Caller is responsible for only
+// calling this on slugs whose external_url is already set (i.e., not Coolify).
+export function updateExternalUrl(slug: string, externalUrl: string): void {
+  const now = new Date().toISOString();
+  db().prepare(`
+    UPDATE demos SET external_url = ?, updated_at = ? WHERE slug = ?
+  `).run(externalUrl, now, slug);
 }
