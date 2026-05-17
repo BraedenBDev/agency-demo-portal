@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 import { listAllDemos, type DemoRow } from '@/lib/db';
-import { refreshFromCoolifyAction } from './actions';
+import { refreshFromCoolifyAction, togglePublishAction } from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,6 +46,9 @@ function DemoRowView({ d }: { d: DemoRow }) {
     d.archived ? 'archived' :
     d.visible ? 'visible' :
     'hidden';
+  const toggle = togglePublishAction.bind(null, d.slug);
+  const canToggle = d.archived !== 1;
+  const isPublished = d.visible === 1;
   return (
     <tr style={trStyle}>
       <td style={tdMonoStyle}>{d.slug}</td>
@@ -53,7 +56,18 @@ function DemoRowView({ d }: { d: DemoRow }) {
       <td style={tdStyle}><span style={stateBadge(state)}>{state}</span></td>
       <td style={tdStyle}>{d.password_gated ? '🔒 gated' : <span style={muted}>open</span>}</td>
       <td style={tdMonoStyle}>{d.coolify_app_id ? d.coolify_app_id.slice(0, 8) : <span style={muted}>—</span>}</td>
-      <td style={tdStyle}>
+      <td style={tdActionsStyle}>
+        {canToggle && (
+          <form action={toggle} style={inlineFormStyle}>
+            <button
+              type="submit"
+              style={isPublished ? unpublishButtonStyle : publishButtonStyle}
+              title={isPublished ? 'Hide from public landing' : 'Show on public landing'}
+            >
+              {isPublished ? 'Unpublish' : 'Publish'}
+            </button>
+          </form>
+        )}
         <Link href={`/admin/${d.slug}`} style={linkStyle}>Edit →</Link>
       </td>
     </tr>
@@ -89,6 +103,30 @@ const tdMonoStyle: React.CSSProperties = {
   fontSize: '0.85rem',
 };
 const linkStyle: React.CSSProperties = { color: '#8ab4ff', textDecoration: 'none', fontSize: '0.85rem' };
+const tdActionsStyle: React.CSSProperties = {
+  ...tdStyle,
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.75rem',
+  justifyContent: 'flex-end',
+};
+const inlineFormStyle: React.CSSProperties = { display: 'inline-flex', margin: 0 };
+const publishButtonStyle: React.CSSProperties = {
+  padding: '0.3rem 0.7rem',
+  borderRadius: 6,
+  background: '#22c55e',
+  color: '#0f0f1a',
+  border: 'none',
+  fontSize: '0.78rem',
+  fontWeight: 600,
+  cursor: 'pointer',
+};
+const unpublishButtonStyle: React.CSSProperties = {
+  ...publishButtonStyle,
+  background: '#2a2a3e',
+  color: '#f5f5f7',
+  border: '1px solid #3a3a4e',
+};
 const muted: React.CSSProperties = { opacity: 0.4 };
 
 function stateBadge(state: 'visible' | 'hidden' | 'archived'): React.CSSProperties {

@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
 
 import {
+  getDemo,
   setDemoPassword,
   setDemoScreenshot,
   updateDemoMeta,
@@ -47,6 +48,13 @@ export async function setPasswordAction(slug: string, formData: FormData): Promi
   await writeTraefikConfig().catch((err) => {
     console.warn('[admin] writeTraefikConfig failed:', err);
   });
+  refresh(slug);
+}
+
+export async function togglePublishAction(slug: string): Promise<void> {
+  const demo = getDemo(slug);
+  if (!demo || demo.archived === 1) return;
+  updateDemoMeta(slug, { visible: demo.visible !== 1 });
   refresh(slug);
 }
 
