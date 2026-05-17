@@ -1,8 +1,26 @@
+import { networkInterfaces } from 'node:os';
+
 const COOLIFY_BASE_URL =
-  process.env.COOLIFY_API_URL?.replace(/\/$/, '') ?? 'http://coolify.atlas.local:8000';
+  process.env.COOLIFY_API_URL?.replace(/\/$/, '') ?? 'http://coolify:8080';
 const COOLIFY_API_TOKEN = process.env.COOLIFY_API_TOKEN ?? '';
 
+// Coolify reads source IP from X-Forwarded-For (it sits behind Traefik). When the portal
+// hits Coolify directly on the docker network, there's no proxy, so we send the header
+// ourselves with our actual interface IP. Override via env if the container is reachable
+// to Coolify by some other IP.
+const COOLIFY_XFF =
+  process.env.COOLIFY_API_XFF ?? detectCoolifyNetIp() ?? '10.0.1.1';
+
 const DEMO_SUFFIX = '.demo.almostimpossible.agency';
+
+function detectCoolifyNetIp(): string | null {
+  for (const list of Object.values(networkInterfaces())) {
+    for (const iface of list ?? []) {
+      if (iface.family === 'IPv4' && !iface.internal) return iface.address;
+    }
+  }
+  return null;
+}
 
 export type DemoApp = {
   coolifyAppId: string;
@@ -33,7 +51,10 @@ export async function listCoolifyApps(
   }
 
   const res = await fetchImpl(`${COOLIFY_BASE_URL}/api/v1/applications`, {
-    headers: { Authorization: `Bearer ${COOLIFY_API_TOKEN}` },
+    headers: {
+      Authorization: `Bearer ${COOLIFY_API_TOKEN}`,
+      'X-Forwarded-For': COOLIFY_XFF,
+    },
     cache: 'no-store',
   });
 
