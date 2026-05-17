@@ -41,6 +41,7 @@ export default function AdminPage() {
               archived={demo.archived === 1}
               passwordGated={demo.password_gated === 1}
               coolifyAppId={demo.coolify_app_id}
+              externalUrl={demo.external_url}
               togglePublishAction={togglePublishAction.bind(null, demo.slug)}
             />
           ))

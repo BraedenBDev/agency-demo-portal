@@ -10,6 +10,7 @@ export type DemoAdminCardProps = {
   archived: boolean;
   passwordGated: boolean;
   coolifyAppId: string | null;
+  externalUrl: string | null;
   togglePublishAction: () => Promise<void>;
 };
 
@@ -21,15 +22,21 @@ export function DemoAdminCard({
   archived,
   passwordGated,
   coolifyAppId,
+  externalUrl,
   togglePublishAction,
 }: DemoAdminCardProps) {
   const state = archived ? 'archived' : visible ? 'visible' : 'hidden';
+  const external = externalUrl !== null;
   return (
     <article className="border border-ash p-6 flex flex-col gap-3 bg-carbon/40">
       <header className="flex justify-between items-start gap-3">
         <div className="font-mono text-[10px] tracking-[0.05em] text-white-40">
           {slug}
-          {coolifyAppId ? <span className="text-white-15"> · {coolifyAppId.slice(0, 8)}</span> : null}
+          {external ? (
+            <span className="text-white-15"> · external</span>
+          ) : coolifyAppId ? (
+            <span className="text-white-15"> · {coolifyAppId.slice(0, 8)}</span>
+          ) : null}
         </div>
         <StateBadge state={state} />
       </header>
@@ -40,6 +47,11 @@ export function DemoAdminCard({
         <p className="text-sm text-white-70 leading-relaxed">{description}</p>
       ) : (
         <p className="text-sm text-white-15 italic">No description yet.</p>
+      )}
+      {external && externalUrl && (
+        <p className="text-xs text-white-40 font-mono truncate" title={externalUrl}>
+          ↗ {externalUrl}
+        </p>
       )}
       <div className="flex flex-wrap gap-2 mt-2 items-center">
         {!archived && (
@@ -52,7 +64,7 @@ export function DemoAdminCard({
         <Button asChild variant="outline" size="sm">
           <Link href={`/admin/${slug}`}>Edit</Link>
         </Button>
-        {passwordGated && (
+        {!external && passwordGated && (
           <span className="text-[10px] uppercase tracking-[0.1em] text-white-40 ml-auto">
             🔒 password-gated
           </span>
