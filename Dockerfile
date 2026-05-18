@@ -26,6 +26,7 @@ ENV NODE_ENV=production \
 
 COPY --from=builder --chown=nextjs:nodejs /build/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /build/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /build/public ./public
 COPY --from=builder --chown=nextjs:nodejs /build/node_modules/better-sqlite3 ./node_modules/better-sqlite3
 COPY --from=builder --chown=nextjs:nodejs /build/node_modules/bindings ./node_modules/bindings
 COPY --from=builder --chown=nextjs:nodejs /build/node_modules/file-uri-to-path ./node_modules/file-uri-to-path
