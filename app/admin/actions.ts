@@ -2,6 +2,8 @@
 
 import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 import {
   createExternalDemo,
@@ -14,6 +16,12 @@ import {
 import { runOnce } from '@/lib/polling';
 import { saveScreenshot } from '@/lib/screenshots';
 import { writeTraefikConfig } from '@/lib/traefik';
+import {
+  clearSession,
+  createSession,
+  getSession,
+  verifyCredentials,
+} from '@/lib/auth';
 
 function refresh(slug: string) {
   revalidatePath('/');
@@ -21,7 +29,39 @@ function refresh(slug: string) {
   revalidatePath(`/admin/${slug}`);
 }
 
+async function requireSession(): Promise<void> {
+  const s = await getSession();
+  if (!s) {
+    redirect('/admin');
+  }
+}
+
+export async function signInAction(formData: FormData): Promise<void> {
+  const username = String(formData.get('username') ?? '').trim();
+  const password = String(formData.get('password') ?? '');
+  const store = await cookies();
+  if (await verifyCredentials(username, password)) {
+    store.delete('demo_portal_signin_failed');
+    await createSession(username);
+    redirect('/admin');
+  }
+  store.set('demo_portal_signin_failed', '1', {
+    path: '/admin',
+    maxAge: 30,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+  });
+  redirect('/admin');
+}
+
+export async function signOutAction(): Promise<void> {
+  await clearSession();
+  redirect('/admin');
+}
+
 export async function updateMetaAction(slug: string, formData: FormData): Promise<void> {
+  await requireSession();
   const title = String(formData.get('title') ?? '').trim();
   const description = String(formData.get('description') ?? '').trim();
   const visible = formData.get('visible') === 'on';
@@ -31,6 +71,7 @@ export async function updateMetaAction(slug: string, formData: FormData): Promis
 }
 
 export async function uploadScreenshotAction(slug: string, formData: FormData): Promise<void> {
+  await requireSession();
   const file = formData.get('screenshot');
   if (!(file instanceof File) || file.size === 0) return;
 
@@ -40,6 +81,7 @@ export async function uploadScreenshotAction(slug: string, formData: FormData): 
 }
 
 export async function setPasswordAction(slug: string, formData: FormData): Promise<void> {
+  await requireSession();
   const password = String(formData.get('password') ?? '');
   if (!password) {
     setDemoPassword(slug, null);
@@ -54,6 +96,7 @@ export async function setPasswordAction(slug: string, formData: FormData): Promi
 }
 
 export async function togglePublishAction(slug: string): Promise<void> {
+  await requireSession();
   const demo = getDemo(slug);
   if (!demo || demo.archived === 1) return;
   updateDemoMeta(slug, { visible: demo.visible !== 1 });
@@ -61,6 +104,7 @@ export async function togglePublishAction(slug: string): Promise<void> {
 }
 
 export async function refreshFromCoolifyAction(): Promise<void> {
+  await requireSession();
   try {
     await runOnce();
   } catch (err) {
@@ -92,6 +136,7 @@ function validateExternalUrl(url: string): string | null {
 }
 
 export async function createExternalDemoAction(formData: FormData): Promise<{ error?: string }> {
+  await requireSession();
   const slug = String(formData.get('slug') ?? '').trim().toLowerCase();
   const externalUrl = String(formData.get('external_url') ?? '').trim();
   const title = String(formData.get('title') ?? '').trim();
@@ -121,6 +166,7 @@ export async function updateExternalUrlAction(
   slug: string,
   formData: FormData,
 ): Promise<{ error?: string }> {
+  await requireSession();
   const externalUrl = String(formData.get('external_url') ?? '').trim();
   const urlError = validateExternalUrl(externalUrl);
   if (urlError) return { error: urlError };

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import {
   createExternalDemoAction,
   refreshFromCoolifyAction,
+  signOutAction,
   togglePublishAction,
 } from './actions';
 
@@ -54,6 +55,15 @@ export default function AdminPage() {
           ))
         )}
       </section>
+
+      <form action={signOutAction} className="self-start pt-4">
+        <button
+          type="submit"
+          className="text-[11px] tracking-[0.18em] uppercase text-white-40 hover:text-white-pure transition-colors"
+        >
+          Sign out
+        </button>
+      </form>
     </PageFrame>
   );
 }
