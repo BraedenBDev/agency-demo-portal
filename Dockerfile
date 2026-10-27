@@ -1,5 +1,5 @@
 # --- builder ---------------------------------------------------------------
-FROM node:22-alpine AS builder
+FROM node:26-alpine AS builder
 
 RUN apk add --no-cache python3 make g++ libc6-compat
 
@@ -12,7 +12,7 @@ COPY . .
 RUN npm run build
 
 # --- runner ----------------------------------------------------------------
-FROM node:22-alpine AS runner
+FROM node:26-alpine AS runner
 
 RUN apk add --no-cache libc6-compat \
     && addgroup -S nodejs && adduser -S -G nodejs nextjs
